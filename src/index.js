@@ -4,7 +4,8 @@ var dgram = require('dgram');
 
 var Alert = {
     HOST: '127.0.0.1',
-    PORT: 9998
+    PORT: 9998,
+    FROM: 'app',
 };
 
 var types = ['info', 'warn', 'error'];
@@ -38,6 +39,8 @@ function buildPacket(data) {
     for (var prop in this) {
 	packet[prop] = this[prop];
     }
+
+    packet.from = Alert.FROM;
 
     packet.timestamp = Date.now();
 
