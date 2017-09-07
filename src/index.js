@@ -5,7 +5,7 @@ var dgram = require('dgram');
 var Alert = {
     HOST: '127.0.0.1',
     PORT: 9998,
-    FROM: 'app',
+    FROM: 'app'
 };
 
 var types = ['info', 'warn', 'error'];
@@ -31,6 +31,8 @@ function doAlert() {
     var message = JSON.stringify(packet);
 
     sendMessage(message, callback);
+
+    return packet;
 }
 
 function buildPacket(data) {
@@ -50,6 +52,10 @@ function buildPacket(data) {
 }
 
 function sendMessage(message, callback) {
+    if (!Alert.PORT || !Alert.HOST) {
+	return;
+    }
+
     var client = dgram.createSocket('udp4');
     client.send(message, 0, message.length, Alert.PORT, Alert.HOST, function (err) {
 	client.close();
