@@ -1,6 +1,6 @@
 {
     "name": "alert",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "description": "Alert module for APP / ruffd / explorer",
     "author": "Nanchao",
     "main": "src/index.js",
