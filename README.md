@@ -24,5 +24,5 @@ alert.info(-1, function (error) {
 });
 
 alert.info('hello', function (error) {
-}));
+});
 ```
