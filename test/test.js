@@ -18,30 +18,30 @@ var cases = {
 
         registerTest(next, args[0], function (packet) {
             assert.deepEqual('info', packet.type);
-            assert.deepEqual(args, packet.data);
+            assert.deepEqual(args, packet.reason);
         });
 
-        alert.info.apply(undefined, args);
+        alert.info(args);
     },
     'test should alert warn': function (next) {
         var args = [genid(), 1, 2, 3];
 
         registerTest(next, args[0], function (packet) {
             assert.deepEqual('warn', packet.type);
-            assert.deepEqual(args, packet.data);
+            assert.deepEqual(args, packet.reason);
         });
 
-        alert.warn.apply(undefined, args);
+        alert.warn(args);
     },
     'test should alert error': function (next) {
         var args = [genid()];
 
         registerTest(next, args[0], function (packet) {
             assert.deepEqual('error', packet.type);
-            assert.deepEqual(args, packet.data);
+            assert.deepEqual(args, packet.reason);
         });
 
-        alert.error.apply(undefined, args);
+        alert.error(args);
     }
 };
 
@@ -73,7 +73,7 @@ server.bind(alert.PORT);
 server.on('message', function (msg, rinfo) {
     var packet = JSON.parse(msg);
     try {
-        var id = packet.data[0];
+        var id = packet.reason[0];
         if (typeof ops[id] === 'function') {
             ops[id](packet);
         }

@@ -5,7 +5,16 @@ var dgram = require('dgram');
 var Alert = {
     HOST: '127.0.0.1',
     PORT: 9998,
-    FROM: 'app'
+    FROM: 'app',
+    REASON: {
+	// 0-99 is reserved for app
+	// 100-199 is reserved for ruffd
+	APPLICATION_EXIT: 100,
+	// 200-299 is reserved for explorer
+	CONNECTION_LOST: 200,
+	CONNECTION_ERROR: 201,
+	CONNECTION_AGAIN: 202
+    }
 };
 
 var types = ['info', 'warn', 'error'];
@@ -17,25 +26,16 @@ for (var level = 0; level < types.length; ++level) {
 
 module.exports = Alert;
 
-function doAlert() {
-    var callback;
-
-    var data = Array.prototype.slice.call(arguments);
-    if (typeof data[data.length - 1] === 'function') {
-	callback = data[data.length - 1];
-	data.pop();
+function doAlert(reason, callback) {
+    if (arguments.length < 1) {
+	throw new Error('"reason" is required');
     }
-
-    var packet = buildPacket.call(this, data);
-
-    var message = JSON.stringify(packet);
-
-    sendMessage(message, callback);
-
+    var packet = buildPacket.call(this, reason);
+    sendPacket(packet, callback);
     return packet;
 }
 
-function buildPacket(data) {
+function buildPacket(reason, message) {
     var packet = Object.create(null);
 
     for (var prop in this) {
@@ -43,23 +43,22 @@ function buildPacket(data) {
     }
 
     packet.from = Alert.FROM;
-
     packet.timestamp = Date.now();
-
-    packet.data = data;
+    packet.reason = reason;
 
     return packet;
 }
 
-function sendMessage(message, callback) {
+function sendPacket(packet, callback) {
     if (!Alert.PORT || !Alert.HOST) {
 	return;
     }
 
     var client = dgram.createSocket('udp4');
-    client.send(message, 0, message.length, Alert.PORT, Alert.HOST, function (err) {
+    var data = JSON.stringify(packet);
+    client.send(data, 0, data.length, Alert.PORT, Alert.HOST, function (err) {
 	client.close();
-	if (callback) {
+	if (typeof callback === 'function') {
 	    callback(err);
 	}
     });
